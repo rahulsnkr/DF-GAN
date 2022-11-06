@@ -13,7 +13,6 @@ class ROBERTA_ENCODER(nn.Module):
     def __init__(self):
         super(ROBERTA_ENCODER, self).__init__()
         self.emb_model = RobertaModel.from_pretrained('roberta-base', output_hidden_states=True)
-        self.linear = nn.Linear(3072, 256)
 
     def forward(self, captions):
         # input: torch.LongTensor of size batch x n_steps
@@ -33,7 +32,7 @@ class ROBERTA_ENCODER(nn.Module):
         # take the mean of the concatenated vector over the token dimension
         sent_emb = torch.mean(cat_hidden_states, dim=1).squeeze()
 
-        return words_emb, self.linear(sent_emb)
+        return words_emb, sent_emb
 
 class RNN_ENCODER(nn.Module):
     def __init__(self, ntoken, ninput=300, drop_prob=0.5,

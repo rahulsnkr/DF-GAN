@@ -57,6 +57,7 @@ class NetD(nn.Module):
 class NetC(nn.Module):
     def __init__(self, ndf, cond_dim=256):
         super(NetC, self).__init__()
+        self.linear = nn.Linear(3072,cond_dim)
         self.cond_dim = cond_dim
         self.joint_conv = nn.Sequential(
             nn.Conv2d(ndf*8+cond_dim, ndf*2, 3, 1, 1, bias=False),
@@ -64,6 +65,7 @@ class NetC(nn.Module):
             nn.Conv2d(ndf*2, 1, 4, 1, 0, bias=False),
         )
     def forward(self, out, y):
+        y = self.linear(y)
         y = y.view(-1, self.cond_dim, 1, 1)
         y = y.repeat(1, 1, 4, 4)
         h_c_code = torch.cat((out, y), 1)
