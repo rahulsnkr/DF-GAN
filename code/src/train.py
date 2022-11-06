@@ -48,6 +48,11 @@ def parse_args():
                         help='node rank for distributed training')
     parser.add_argument('--random_sample', action='store_true',default=True, 
                         help='whether to sample the dataset with random sampler')
+    parser.add_argument('--use_transformer', default=False, type=bool,
+                        help='whether to use transformer for embedding captions')
+    parser.add_argument('--transformer_type', default='', type=str,
+                        help='type of transformer to use for embeddings')
+
     args = parser.parse_args()
     return args
 

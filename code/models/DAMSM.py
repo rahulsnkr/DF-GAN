@@ -6,23 +6,18 @@ from torchvision import models
 import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-from transformers import RobertaModel, RobertaTokenizer
+from transformers import RobertaModel
 
 # ############## Text2Image Encoder-Decoder #######
 class ROBERTA_ENCODER(nn.Module):
     def __init__(self):
         super(ROBERTA_ENCODER, self).__init__()
-        self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
         self.emb_model = RobertaModel.from_pretrained('roberta-base', output_hidden_states=True)
-        self.type = 'transformer'
 
     def forward(self, captions):
         # input: torch.LongTensor of size batch x n_steps
-
-        caption_ids = self.tokenizer(captions, padding=True)
-
         # Get the hidden states of the encoder
-        hidden_states = self.emb_model(input_ids=caption_ids)[2]
+        hidden_states = self.emb_model(input_ids=captions)[2]
 
         # Get the output of the last layer for word embeddings
         words_emb = hidden_states[-1]

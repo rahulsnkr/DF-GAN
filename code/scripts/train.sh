@@ -7,6 +7,8 @@ num_workers=4
 batch_size_per_gpu=32
 stamp=normal
 train=True
+use_transformer=True
+transformer_type='roberta'
 
 # resume training
 resume_epoch=1
@@ -28,4 +30,6 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=$node
                     --resume_model_path $resume_model_path \
                     --train $train \
                     --multi_gpus $multi_gpus \
+                    --use_transformer  $use_transformer \
+                    --transformer_type $transformer_type
 
