@@ -123,7 +123,7 @@ def main(args):
             save_models(netG, netD, netC, optimizerG, optimizerD, epoch, args.multi_gpus, args.model_save_file)
         # sample
         if epoch%gen_interval==0:
-            sample(fixed_z, fixed_sent, netG, args.multi_gpus, epoch, args.img_save_dir, writer, args)
+            sample(fixed_z, fixed_sent, netG, args.multi_gpus, epoch, args.img_save_dir, writer)
         # end epoch
         # test
         if epoch%test_interval==0:
