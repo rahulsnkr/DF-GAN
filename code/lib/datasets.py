@@ -63,11 +63,14 @@ def sort_sents(captions, caption_lens):
 def encode_tokens(text_encoder, caption, cap_lens):
     # encode text
     with torch.no_grad():
-        if hasattr(text_encoder, 'module'):
-            hidden = text_encoder.module.init_hidden(caption.size(0))
+        if text_encoder.type is not None and text_encoder.type == 'transformer':
+            words_embs, sent_emb = text_encoder(caption)
         else:
-            hidden = text_encoder.init_hidden(caption.size(0))
-        words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
+            if hasattr(text_encoder, 'module'):
+                hidden = text_encoder.module.init_hidden(caption.size(0))
+            else:
+                hidden = text_encoder.init_hidden(caption.size(0))
+            words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
         words_embs, sent_emb = words_embs.detach(), sent_emb.detach()
     return sent_emb, words_embs 
 

@@ -14,8 +14,9 @@ class ROBERTA_ENCODER(nn.Module):
         super(ROBERTA_ENCODER, self).__init__()
         self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
         self.emb_model = RobertaModel.from_pretrained('roberta-base', output_hidden_states=True)
+        self.type = 'transformer'
 
-    def forward(self, captions, cap_lens, mask=None):
+    def forward(self, captions):
         # input: torch.LongTensor of size batch x n_steps
 
         caption_ids = self.tokenizer(captions, padding=True)
