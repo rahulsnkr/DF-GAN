@@ -123,13 +123,13 @@ def main(args):
             save_models(netG, netD, netC, optimizerG, optimizerD, epoch, args.multi_gpus, args.model_save_file)
         # sample
         if epoch%gen_interval==0:
-            sample(fixed_z, fixed_sent, netG, args.multi_gpus, epoch, args.img_save_dir, writer)
+            sample(fixed_z, fixed_sent, netG, args.multi_gpus, epoch, args.img_save_dir, writer, args)
         # end epoch
         # test
         if epoch%test_interval==0:
             torch.cuda.empty_cache()
             fid = test(valid_dl, text_encoder, netG, args.device, m1, s1, epoch, args.max_epoch, \
-                        args.sample_times, args.z_dim, args.batch_size, args.truncation, args.trunc_rate)
+                        args.sample_times, args.z_dim, args.batch_size, args.truncation, args.trunc_rate, args)
         if (args.multi_gpus==True) and (get_rank() != 0):
             None
         else:
