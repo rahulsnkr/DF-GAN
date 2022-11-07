@@ -155,9 +155,11 @@ if __name__ == "__main__":
         if args.multi_gpus:
             torch.cuda.manual_seed_all(args.manual_seed)
             torch.distributed.init_process_group(backend="nccl")
+            #torch.distributed.init_process_group(backend="nccl")
+            #local_rank = args.local_rank
             local_rank = torch.distributed.get_rank()
             torch.cuda.set_device(local_rank)
-            args.device = torch.device("cuda", local_rank)
+            args.device = torch.device("cuda:{}".format(local_rank))
             args.local_rank = local_rank
         else:
             torch.cuda.manual_seed_all(args.manual_seed)
