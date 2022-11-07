@@ -12,9 +12,9 @@ from transformers import GPT2Model
 class GPT2_ENCODER(nn.Module):
     def __init__(self):
         super(GPT2_ENCODER, self).__init__()
-        self.emb_model = GPT2Model.from_pretrained('gpt-2', output_hidden_states=True)
+        self.emb_model = GPT2Model.from_pretrained('gpt2', output_hidden_states=True)
 
-    def forward(self, captions, cap_lens, mask=None):
+    def forward(self, captions):
         # input: torch.LongTensor of size batch x n_steps
 
         # Get the hidden states of the encoder
