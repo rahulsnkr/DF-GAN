@@ -6,23 +6,19 @@ from torchvision import models
 import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-from transformers import GPT2Tokenizer, GPT2Model
+from transformers import GPT2Model
 
 # ############## Text2Image Encoder-Decoder #######
 class GPT2_ENCODER(nn.Module):
     def __init__(self):
         super(GPT2_ENCODER, self).__init__()
-        self.tokenizer = GPT2Tokenizer.from_pretrained("gpt-2")
         self.emb_model = GPT2Model.from_pretrained('gpt-2', output_hidden_states=True)
 
     def forward(self, captions, cap_lens, mask=None):
         # input: torch.LongTensor of size batch x n_steps
 
-        caption_ids = self.tokenizer(captions, padding=True)
-
         # Get the hidden states of the encoder
-        hidden_states = self.emb_model(input_ids=caption_ids)[2]
-
+        hidden_states = self.emb_model(input_ids=captions)[2]
         # Get the output of the last layer for word embeddings
         words_emb = hidden_states[-1]
 

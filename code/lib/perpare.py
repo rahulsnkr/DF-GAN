@@ -20,7 +20,7 @@ from torch.utils.data import DataLoader, random_split
 from torch.utils.data.distributed import DistributedSampler
 
 from lib.utils import mkdir_p, get_rank, load_model_weights
-from models.DAMSM import RNN_ENCODER, CNN_ENCODER
+from models.DAMSM import RNN_ENCODER, CNN_ENCODER, GPT2_ENCODER
 from models.GAN import NetG, NetD, NetC
 
 ###########   preparation   ############
@@ -40,13 +40,21 @@ def prepare_models(args):
         p.requires_grad = False
     image_encoder.eval()
     # text encoder
-    text_encoder = RNN_ENCODER(n_words, nhidden=args.TEXT.EMBEDDING_DIM)
-    state_dict = torch.load(args.TEXT.DAMSM_NAME, map_location='cpu')
-    text_encoder = load_model_weights(text_encoder, state_dict, multi_gpus=False)
-    text_encoder.cuda()
-    for p in text_encoder.parameters():
-        p.requires_grad = False
-    text_encoder.eval()
+    if args.use_transformer:
+        if args.transformer_type == 'gpt2':
+            text_encoder = GPT2_ENCODER()
+            text_encoder.cuda()
+            for p in text_encoder.parameters():
+                p.requires_grad = False
+            text_encoder.eval()
+    else:
+        text_encoder = RNN_ENCODER(n_words, nhidden=args.TEXT.EMBEDDING_DIM)
+        state_dict = torch.load(args.TEXT.DAMSM_NAME, map_location='cpu')
+        text_encoder = load_model_weights(text_encoder, state_dict, multi_gpus=False)
+        text_encoder.cuda()
+        for p in text_encoder.parameters():
+            p.requires_grad = False
+        text_encoder.eval()
     # GAN models
     netG = NetG(args.nf, args.z_dim, args.cond_dim, args.imsize, args.ch_size).to(device)
     netD = NetD(args.nf, args.imsize, args.ch_size).to(device)

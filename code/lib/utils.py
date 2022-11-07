@@ -16,6 +16,7 @@ import dateutil.tz
 from io import BytesIO
 from PIL import Image
 from torchvision import transforms, datasets
+from transformers import GPT2Tokenizer
 
 # test_utils
 def params_count(model):
@@ -166,6 +167,23 @@ def get_tokenizer():
     tokenizer = RegexpTokenizer(r'\w+')
     return tokenizer
 
+def tokenize_transformer(text_filepath, args):
+    if args.use_transformer:
+        if args.transformer_type == 'gpt2':
+            tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+
+    filepath = text_filepath
+    with open(filepath, "r") as f:
+        sentences = f.read().split('\n')
+        # a list of indices for a sentence
+        captions = []
+        for sent in sentences:
+            if len(sent) == 0:
+                continue
+            sent = sent.replace("\ufffd\ufffd", " ")
+            tokens = tokenizer(sent, padding=True)
+            captions.append(tokens)
+        return captions
 
 def tokenize(wordtoix, text_filepath):
     '''generate images from example sentences'''

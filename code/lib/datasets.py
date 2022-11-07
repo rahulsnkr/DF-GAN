@@ -5,6 +5,7 @@ import torch
 import torch.utils.data as data
 from torch.autograd import Variable
 import torchvision.transforms as transforms
+from transformers import GPT2Tokenizer
 
 import os
 import sys
@@ -24,7 +25,7 @@ from .utils import truncated_noise
 
 def get_one_batch_data(dataloader, text_encoder, args):
     data = next(iter(dataloader))
-    imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder)
+    imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder, args)
     return imgs, words_embs, sent_emb
 
 
@@ -41,10 +42,10 @@ def get_fix_data(train_dl, test_dl, text_encoder, args):
     return fixed_image, fixed_sent, fixed_noise
 
 
-def prepare_data(data, text_encoder):
+def prepare_data(data, text_encoder, args):
     imgs, captions, caption_lens, keys = data
     captions, sorted_cap_lens, sorted_cap_idxs = sort_sents(captions, caption_lens)
-    sent_emb, words_embs = encode_tokens(text_encoder, captions, sorted_cap_lens)
+    sent_emb, words_embs = encode_tokens(text_encoder, captions, sorted_cap_lens, args)
     sent_emb = rm_sort(sent_emb, sorted_cap_idxs)
     words_embs = rm_sort(words_embs, sorted_cap_idxs)
     imgs = Variable(imgs).cuda()
@@ -60,14 +61,21 @@ def sort_sents(captions, caption_lens):
     return captions, sorted_cap_lens, sorted_cap_indices
 
 
-def encode_tokens(text_encoder, caption, cap_lens):
+def encode_tokens(text_encoder, caption, cap_lens, args):
     # encode text
     with torch.no_grad():
-        if hasattr(text_encoder, 'module'):
-            hidden = text_encoder.module.init_hidden(caption.size(0))
+        # if hasattr(text_encoder, 'module'):
+        #     hidden = text_encoder.module.init_hidden(caption.size(0))
+        if args.use_transformer:
+            words_embs, sent_emb = text_encoder(caption)
         else:
-            hidden = text_encoder.init_hidden(caption.size(0))
-        words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
+        #     hidden = text_encoder.init_hidden(caption.size(0))
+        # words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
+            if hasattr(text_encoder, 'module'):
+                hidden = text_encoder.module.init_hidden(caption.size(0))
+            else:
+                hidden = text_encoder.init_hidden(caption.size(0))
+            words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
         words_embs, sent_emb = words_embs.detach(), sent_emb.detach()
     return sent_emb, words_embs 
 
@@ -119,8 +127,12 @@ class TextImgDataset(data.Dataset):
             self.bbox = None
         split_dir = os.path.join(self.data_dir, split)
 
+        if args.use_transformer:
+            if args.transformer_type == 'gpt2':
+                self.tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+
         self.filenames, self.captions, self.ixtoword, \
-            self.wordtoix, self.n_words = self.load_text_data(self.data_dir, split)
+            self.wordtoix, self.n_words = self.load_text_data(self.data_dir, split, args)
 
         self.class_id = self.load_class_id(split_dir, len(self.filenames))
         self.number_example = len(self.filenames)
@@ -222,7 +234,10 @@ class TextImgDataset(data.Dataset):
         return [train_captions_new, test_captions_new,
                 ixtoword, wordtoix, len(ixtoword)]
 
-    def load_text_data(self, data_dir, split):
+    def build_caption_embeds(self, train_captions, test_captions):
+        return self.tokenizer(train_captions, padding=True), self.tokenizer(test_captions, padding=True)
+
+    def load_text_data(self, data_dir, split, args):
         filepath = os.path.join(data_dir, 'captions_DAMSM.pickle')
         train_names = self.load_filenames(data_dir, 'train')
         test_names = self.load_filenames(data_dir, 'test')
@@ -230,20 +245,36 @@ class TextImgDataset(data.Dataset):
             train_captions = self.load_captions(data_dir, train_names)
             test_captions = self.load_captions(data_dir, test_names)
 
-            train_captions, test_captions, ixtoword, wordtoix, n_words = \
-                self.build_dictionary(train_captions, test_captions)
-            with open(filepath, 'wb') as f:
-                pickle.dump([train_captions, test_captions,
-                             ixtoword, wordtoix], f, protocol=2)
-                print('Save to: ', filepath)
+            if args.use_transformer:
+                train_captions, test_captions = self.build_caption_embeds(train_captions, test_captions)
+
+                with open(filepath, 'wb') as f:
+                    pickle.dump([train_captions, test_captions], f, protocol=2)
+                    print('Save to: ', filepath)
+            else:
+                train_captions, test_captions, ixtoword, wordtoix, n_words = \
+                    self.build_dictionary(train_captions, test_captions)
+
+                with open(filepath, 'wb') as f:
+                    pickle.dump([train_captions, test_captions,
+                                ixtoword, wordtoix], f, protocol=2)
+                    print('Save to: ', filepath)
         else:
-            with open(filepath, 'rb') as f:
-                x = pickle.load(f)
-                train_captions, test_captions = x[0], x[1]
-                ixtoword, wordtoix = x[2], x[3]
-                del x
-                n_words = len(ixtoword)
-                print('Load from: ', filepath)
+            if args.use_transformer:
+                with open(filepath, 'rb') as f:
+                    x = pickle.load(f)
+                    train_captions, test_captions = x[0], x[1]
+                    ixtoword, wordtoix, n_words = None, None, None
+                    del x
+                    print('Load from: ', filepath)
+            else:
+                with open(filepath, 'rb') as f:
+                    x = pickle.load(f)
+                    train_captions, test_captions = x[0], x[1]
+                    ixtoword, wordtoix = x[2], x[3]
+                    del x
+                    n_words = len(ixtoword)
+                    print('Load from: ', filepath)
         if split == 'train':
             # a list of list: each list contains
             # the indices of words in a sentence
