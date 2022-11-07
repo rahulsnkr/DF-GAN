@@ -128,7 +128,7 @@ def main(args):
         if epoch%test_interval==0:
             torch.cuda.empty_cache()
             fid = test(valid_dl, text_encoder, netG, args.device, m1, s1, epoch, args.max_epoch, \
-                        args.sample_times, args.z_dim, args.batch_size, args.truncation, args.trunc_rate)
+                        args.sample_times, args.z_dim, args.batch_size, args.truncation, args.trunc_rate, args)
         if (args.multi_gpus==True) and (get_rank() != 0):
             None
         else:
@@ -156,7 +156,7 @@ if __name__ == "__main__":
             torch.distributed.init_process_group(backend="nccl")
             local_rank = torch.distributed.get_rank()
             torch.cuda.set_device(local_rank)
-            args.device = torch.device("cuda", local_rank)
+            args.device = torch.device("cuda:{}".format(local_rank))
             args.local_rank = local_rank
         else:
             torch.cuda.manual_seed_all(args.manual_seed)

@@ -6,7 +6,8 @@ data_dir: ../data/birds
 gpu_id: 0
 imsize: 256
 z_dim: 100
-cond_dim: 256
+#cond_dim: 256
+cond_dim: 3072
 manual_seed: 100
 cuda: True
 

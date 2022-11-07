@@ -43,7 +43,7 @@ def train(dataloader, netG, netD, netC, text_encoder, optimizerG, optimizerD, ar
         loop = tqdm(total=len(dataloader))
     for step, data in enumerate(dataloader, 0):
         # prepare_data
-        imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder)
+        imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder, args)
         imgs = imgs.to(device).requires_grad_()
         sent_emb = sent_emb.to(device).requires_grad_()
         words_embs = words_embs.to(device).requires_grad_()
@@ -86,12 +86,12 @@ def train(dataloader, netG, netD, netC, text_encoder, optimizerG, optimizerD, ar
         loop.close()
 
 
-def sample(dataloader, netG, text_encoder, save_dir, device, multi_gpus, z_dim, stamp, truncation, trunc_rate, times):
+def sample(dataloader, netG, text_encoder, save_dir, device, multi_gpus, z_dim, stamp, truncation, trunc_rate, times, args):
     for step, data in enumerate(dataloader, 0):
         ######################################################
         # (1) Prepare_data
         ######################################################
-        imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder)
+        imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder, args)
         sent_emb = sent_emb.to(device)
         ######################################################
         # (2) Generate fake images
@@ -128,14 +128,14 @@ def sample(dataloader, netG, text_encoder, save_dir, device, multi_gpus, z_dim, 
 
 
 def test(dataloader, text_encoder, netG, device, m1, s1, epoch, max_epoch,
-                    times=1, z_dim=100, batch_size=64, truncation=True, trunc_rate=0.8):
+                    times=1, z_dim=100, batch_size=64, truncation=True, trunc_rate=0.8, args = None):
     fid = calculate_fid(dataloader, text_encoder, netG, device, m1, s1, epoch, max_epoch, \
-                        times, z_dim, batch_size, truncation, trunc_rate)
+                        times, z_dim, batch_size, truncation, trunc_rate, args)
     return fid
 
 
 def calculate_fid(dataloader, text_encoder, netG, device, m1, s1, epoch, max_epoch,
-                    times=1, z_dim=100, batch_size=64, truncation=True, trunc_rate=0.8):
+                    times=1, z_dim=100, batch_size=64, truncation=True, trunc_rate=0.8, args=None):
     """ Calculates the FID """
     # prepare Inception V3
     dims = 2048
@@ -163,7 +163,7 @@ def calculate_fid(dataloader, text_encoder, netG, device, m1, s1, epoch, max_epo
             ######################################################
             # (1) Prepare_data
             ######################################################
-            imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder)
+            imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder, args)
             sent_emb = sent_emb.to(device)
             ######################################################
             # (2) Generate fake images
@@ -204,7 +204,7 @@ def calculate_fid(dataloader, text_encoder, netG, device, m1, s1, epoch, max_epo
 
 
 def eval(dataloader, text_encoder, netG, device, m1, s1, save_imgs, save_dir,
-                times, z_dim, batch_size, truncation=True, trunc_rate=0.86):
+                times, z_dim, batch_size, truncation=True, trunc_rate=0.86, args = None):
     """ Calculates the FID """
     # prepare Inception V3
     dims = 2048
@@ -233,7 +233,7 @@ def eval(dataloader, text_encoder, netG, device, m1, s1, save_imgs, save_dir,
             ######################################################
             # (1) Prepare_data
             ######################################################
-            imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder)
+            imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder, args)
             sent_emb = sent_emb.to(device)
             ######################################################
             # (2) Generate fake images

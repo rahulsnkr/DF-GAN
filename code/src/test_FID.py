@@ -73,7 +73,7 @@ def main(args):
     m1, s1 = load_npz(args.npz_path)
     with torch.no_grad():
         fid = eval(valid_dl, text_encoder, netG, args.device, m1, s1, args.save_image, args.val_save_dir, \
-                        args.sample_times, args.z_dim, args.batch_size, args.truncation, args.trunc_rate)
+                        args.sample_times, args.z_dim, args.batch_size, args.truncation, args.trunc_rate, args)
     end_t = time.time()
     if (multi_gpus==True) and (get_rank() != 0):
         None
