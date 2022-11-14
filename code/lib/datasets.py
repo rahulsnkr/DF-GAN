@@ -5,7 +5,7 @@ import torch
 import torch.utils.data as data
 from torch.autograd import Variable
 import torchvision.transforms as transforms
-from transformers import GPT2Tokenizer
+from transformers import BertTokenizer
 
 import os
 import sys
@@ -64,13 +64,9 @@ def sort_sents(captions, caption_lens):
 def encode_tokens(text_encoder, caption, cap_lens, args):
     # encode text
     with torch.no_grad():
-        # if hasattr(text_encoder, 'module'):
-        #     hidden = text_encoder.module.init_hidden(caption.size(0))
         if args.use_transformer:
             words_embs, sent_emb = text_encoder(caption)
         else:
-        #     hidden = text_encoder.init_hidden(caption.size(0))
-        # words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
             if hasattr(text_encoder, 'module'):
                 hidden = text_encoder.module.init_hidden(caption.size(0))
             else:
@@ -128,8 +124,8 @@ class TextImgDataset(data.Dataset):
         split_dir = os.path.join(self.data_dir, split)
 
         if args.use_transformer:
-            if args.transformer_type == 'gpt2':
-                self.tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+            if args.transformer_type == 'bert-base-uncased':
+                self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
         self.filenames, self.captions, self.ixtoword, \
             self.wordtoix, self.n_words = self.load_text_data(self.data_dir, split, args)

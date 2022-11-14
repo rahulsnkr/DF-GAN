@@ -16,7 +16,7 @@ import dateutil.tz
 from io import BytesIO
 from PIL import Image
 from torchvision import transforms, datasets
-from transformers import GPT2Tokenizer
+from transformers import BertTokenizer
 
 # test_utils
 def params_count(model):
@@ -169,8 +169,8 @@ def get_tokenizer():
 
 def tokenize_transformer(text_filepath, args):
     if args.use_transformer:
-        if args.transformer_type == 'gpt2':
-            tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+        if args.transformer_type == 'bert-base-uncased':
+            tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
     filepath = text_filepath
     with open(filepath, "r") as f:
