@@ -6,13 +6,13 @@ from torchvision import models
 import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-from transformers import BertModel
+from transformers import XLNetModel
 
 # ############## Text2Image Encoder-Decoder #######
-class BERT_ENCODER(nn.Module):
+class XLNET_ENCODER(nn.Module):
     def __init__(self):
-        super(BERT_ENCODER, self).__init__()
-        self.emb_model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
+        super(XLNET_ENCODER, self).__init__()
+        self.emb_model = XLNetModel.from_pretrained('xlnet-base-cased', output_hidden_states=True)
 
     def forward(self, captions):
         # input: torch.LongTensor of size batch x n_steps
@@ -30,7 +30,7 @@ class BERT_ENCODER(nn.Module):
         cat_hidden_states = torch.cat(tuple(last_four_layers), dim=-1)
         #print(cat_hidden_states.size())
         # take the mean of the concatenated vector over the token dimension
-        sent_emb = words_emb #torch.mean(cat_hidden_states, dim=1).squeeze()
+        sent_emb = torch.mean(cat_hidden_states, dim=1).squeeze()
 
         return words_emb, sent_emb
 

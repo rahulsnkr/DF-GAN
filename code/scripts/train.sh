@@ -8,7 +8,7 @@ batch_size_per_gpu=32
 stamp=normal
 train=True
 use_transformer=True
-transformer_type='bert-base-uncased'
+transformer_type='xlnet-base-cased'
 
 # resume training
 resume_epoch=1

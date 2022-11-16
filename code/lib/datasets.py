@@ -5,7 +5,7 @@ import torch
 import torch.utils.data as data
 from torch.autograd import Variable
 import torchvision.transforms as transforms
-from transformers import BertTokenizer
+from transformers import XLNetTokenizer
 
 import os
 import sys
@@ -124,8 +124,8 @@ class TextImgDataset(data.Dataset):
         split_dir = os.path.join(self.data_dir, split)
 
         if args.use_transformer:
-            if args.transformer_type == 'bert-base-uncased':
-                self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+            if args.transformer_type == 'xlnet-base-cased':
+                self.tokenizer = XLNetTokenizer.from_pretrained("xlnet-base-cased")
 
         self.filenames, self.captions, self.ixtoword, \
             self.wordtoix, self.n_words = self.load_text_data(self.data_dir, split, args)
