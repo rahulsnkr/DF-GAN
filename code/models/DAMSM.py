@@ -7,6 +7,8 @@ import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from transformers import RobertaModel
+from involution import Involution2d
+
 
 # ############## Text2Image Encoder-Decoder #######
 class ROBERTA_ENCODER(nn.Module):
@@ -123,7 +125,7 @@ class RNN_ENCODER(nn.Module):
 
 def conv1x1(in_planes, out_planes, bias=False):
     "1x1 convolution with padding"
-    return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=1,
+    return Involution2d(in_planes, out_planes, kernel_size=1, stride=1,
                      padding=0, bias=bias)
 
 

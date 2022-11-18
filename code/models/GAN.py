@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
 from collections import OrderedDict
+from involution import Involution2d
 
 
 class NetG(nn.Module):
@@ -19,7 +20,7 @@ class NetG(nn.Module):
         # to RGB image
         self.to_rgb = nn.Sequential(
             nn.LeakyReLU(0.2,inplace=True),
-            nn.Conv2d(out_ch, ch_size, 3, 1, 1),
+            Involution2d(out_ch, ch_size, 3, 1, 1),
             nn.Tanh(),
             )
 
@@ -40,7 +41,7 @@ class NetG(nn.Module):
 class NetD(nn.Module):
     def __init__(self, ndf, imsize=128, ch_size=3):
         super(NetD, self).__init__()
-        self.conv_img = nn.Conv2d(ch_size, ndf, 3, 1, 1)
+        self.conv_img = Involution2d(ch_size, ndf, 3, 1, 1)
         # build DBlocks
         self.DBlocks = nn.ModuleList([])
         in_out_pairs = get_D_in_out_chs(ndf, imsize)
@@ -59,9 +60,9 @@ class NetC(nn.Module):
         super(NetC, self).__init__()
         self.cond_dim = cond_dim
         self.joint_conv = nn.Sequential(
-            nn.Conv2d(ndf*8+cond_dim, ndf*2, 3, 1, 1, bias=False),
+            Involution2d(ndf*8+cond_dim, ndf*2, 3, 1, 1, bias=False),
             nn.LeakyReLU(0.2,inplace=True),
-            nn.Conv2d(ndf*2, 1, 4, 1, 0, bias=False),
+            Involution2d(ndf*2, 1, 4, 1, 0, bias=False),
         )
     def forward(self, out, y):
         y = y.view(-1, self.cond_dim, 1, 1)
@@ -76,12 +77,12 @@ class G_Block(nn.Module):
         super(G_Block, self).__init__()
         self.upsample = upsample
         self.learnable_sc = in_ch != out_ch 
-        self.c1 = nn.Conv2d(in_ch, out_ch, 3, 1, 1)
-        self.c2 = nn.Conv2d(out_ch, out_ch, 3, 1, 1)
+        self.c1 = Involution2d(in_ch, out_ch, 3, 1, 1)
+        self.c2 = Involution2d(out_ch, out_ch, 3, 1, 1)
         self.fuse1 = DFBLK(cond_dim, in_ch)
         self.fuse2 = DFBLK(cond_dim, out_ch)
         if self.learnable_sc:
-            self.c_sc = nn.Conv2d(in_ch,out_ch, 1, stride=1, padding=0)
+            self.c_sc = Involution2d(in_ch,out_ch, 1, stride=1, padding=0)
 
     def shortcut(self, x):
         if self.learnable_sc:
@@ -107,12 +108,12 @@ class D_Block(nn.Module):
         self.downsample = downsample
         self.learned_shortcut = (fin != fout)
         self.conv_r = nn.Sequential(
-            nn.Conv2d(fin, fout, 4, 2, 1, bias=False),
+            Involution2d(fin, fout, 4, 2, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(fout, fout, 3, 1, 1, bias=False),
+            Involution2d(fout, fout, 3, 1, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
         )
-        self.conv_s = nn.Conv2d(fin,fout, 1, stride=1, padding=0)
+        self.conv_s = Involution2d(fin,fout, 1, stride=1, padding=0)
         self.gamma = nn.Parameter(torch.zeros(1))
 
     def forward(self, x):

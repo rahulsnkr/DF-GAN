@@ -1,7 +1,7 @@
 tqdm
 numpy
-torch==1.9.0
-torchvision==0.10.0
+torch
+torchvision
 easydict
 pandas
 jupyter
@@ -13,3 +13,6 @@ tensorboard
 ftfy
 regex
 tqdm
+datasets
+transformers
+involution-pytorch
