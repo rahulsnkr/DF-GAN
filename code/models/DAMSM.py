@@ -125,7 +125,7 @@ class RNN_ENCODER(nn.Module):
 
 def conv1x1(in_planes, out_planes, bias=False):
     "1x1 convolution with padding"
-    return Involution2d(in_planes, out_planes, kernel_size=1, stride=1,
+    return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=1,
                      padding=0, bias=bias)
 
 
