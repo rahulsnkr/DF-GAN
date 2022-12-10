@@ -72,10 +72,10 @@ def sample_example(wordtoix, netG, text_encoder, args):
     if args.use_transformer:
         captions, cap_lens = tokenize_transformer(text_filepath, args)
         captions = [caption['input_ids'] for caption in captions]
-        sent_embs, _  = prepare_sample_data(captions, cap_lens, text_encoder, device)
+        sent_embs, _  = prepare_sample_data(captions, cap_lens, text_encoder, device, args)
     else:
         captions, cap_lens, _ = tokenize(wordtoix, text_filepath)
-        sent_embs, _  = prepare_sample_data(captions, cap_lens, text_encoder, device)
+        sent_embs, _  = prepare_sample_data(captions, cap_lens, text_encoder, device, args)
     caption_num = sent_embs.size(0)
     # get noise
     if truncation==True:

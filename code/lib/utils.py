@@ -233,23 +233,26 @@ def sort_example_captions(captions, cap_lens, device):
     return captions, cap_lens, sorted_indices
 
 
-def prepare_sample_data(captions, caption_lens, text_encoder, device):
+def prepare_sample_data(captions, caption_lens, text_encoder, device, args):
     print('*'*40)
     captions, sorted_cap_lens, sorted_cap_idxs = sort_example_captions(captions, caption_lens, device)
-    sent_emb, words_embs = encode_tokens(text_encoder, captions, sorted_cap_lens)
+    sent_emb, words_embs = encode_tokens(text_encoder, captions, sorted_cap_lens, args)
     sent_emb = rm_sort(sent_emb, sorted_cap_idxs)
     words_embs = rm_sort(words_embs, sorted_cap_idxs)
     return sent_emb, words_embs
 
 
-def encode_tokens(text_encoder, caption, cap_lens):
+def encode_tokens(text_encoder, caption, cap_lens, args):
     # encode text
     with torch.no_grad():
-        if hasattr(text_encoder, 'module'):
-            hidden = text_encoder.module.init_hidden(caption.size(0))
+        if args.use_transformer:
+            words_embs, sent_emb = text_encoder(caption)
         else:
-            hidden = text_encoder.init_hidden(caption.size(0))
-        words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
+            if hasattr(text_encoder, 'module'):
+                hidden = text_encoder.module.init_hidden(caption.size(0))
+            else:
+                hidden = text_encoder.init_hidden(caption.size(0))
+            words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
         words_embs, sent_emb = words_embs.detach(), sent_emb.detach()
     return sent_emb, words_embs 
 
