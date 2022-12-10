@@ -70,7 +70,7 @@ def sample_example(wordtoix, netG, text_encoder, args):
     truncation, trunc_rate = args.truncation, args.trunc_rate
     z_dim = args.z_dim
     if args.use_transformer:
-        captions = tokenize_transformer(text_filepath, args)
+        captions, cap_lens = tokenize_transformer(text_filepath, args)
         sent_embs, _  = prepare_sample_data(captions, cap_lens, text_encoder, device)
     else:
         captions, cap_lens, _ = tokenize(wordtoix, text_filepath)

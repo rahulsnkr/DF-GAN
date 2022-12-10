@@ -177,13 +177,15 @@ def tokenize_transformer(text_filepath, args):
         sentences = f.read().split('\n')
         # a list of indices for a sentence
         captions = []
+        cap_lens = []
         for sent in sentences:
             if len(sent) == 0:
                 continue
             sent = sent.replace("\ufffd\ufffd", " ")
             tokens = tokenizer(sent, padding=True)
             captions.append(tokens)
-        return captions
+            cap_lens.append(len(tokens))
+        return captions, cap_lens
 
 
 def tokenize(wordtoix, text_filepath):
