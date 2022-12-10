@@ -185,7 +185,8 @@ def tokenize_transformer(text_filepath, args):
             tokens = tokenizer(sent, padding=True)
             captions.append(tokens)
             cap_lens.append(len(tokens))
-        return captions
+
+        return captions, cap_lens
 
 
 def tokenize(wordtoix, text_filepath):
