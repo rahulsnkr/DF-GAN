@@ -71,6 +71,7 @@ def sample_example(wordtoix, netG, text_encoder, args):
     z_dim = args.z_dim
     if args.use_transformer:
         captions, cap_lens = tokenize_transformer(text_filepath, args)
+        captions = [caption['input_ids'] for caption in captions]
         sent_embs, _  = prepare_sample_data(captions, cap_lens, text_encoder, device)
     else:
         captions, cap_lens, _ = tokenize(wordtoix, text_filepath)

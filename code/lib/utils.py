@@ -184,7 +184,7 @@ def tokenize_transformer(text_filepath, args):
             sent = sent.replace("\ufffd\ufffd", " ")
             tokens = tokenizer(sent, padding=True)
             captions.append(tokens)
-            cap_lens.append([len(caption['input_ids']) for caption in captions])
+            cap_lens.append(len(captions[-1]['input_ids']))
         return captions, cap_lens
 
 
