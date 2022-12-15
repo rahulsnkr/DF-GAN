@@ -36,8 +36,12 @@ def parse_args():
                         help='image szie')
     parser.add_argument('--cuda', type=bool, default=False,
                         help='if use GPU')
+    parser.add_argument('--transformer', type=str, default='model',
+                        help='use transform')
     parser.add_argument('--train', type=bool, default=False,
                         help='if training')
+    #parser.add_argument('--checkpoint', type=str, default='1',
+     #                   help='choose checkpoint')
     parser.add_argument('--multi_gpus', type=bool, default=False,
                         help='if use multi-gpu')
     parser.add_argument('--gpu_id', type=int, default=2,
@@ -119,6 +123,8 @@ def main(args):
 if __name__ == "__main__":
     args = merge_args_yaml(parse_args())
     # set seed
+    print(args.cuda,"CUDA!")
+    #args.cuda=False
     if args.manual_seed is None:
         args.manual_seed = 100
     random.seed(args.manual_seed)

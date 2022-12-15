@@ -31,12 +31,18 @@ def parse_args():
                         help='number of workers(default: 4)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='batch size')
+    parser.add_argument('--transformer', type=str, default='model',
+                        help='use transform')
     parser.add_argument('--train', type=bool, default=False,
                         help='if train model')
     parser.add_argument('--multi_gpus', type=bool, default=False,
                         help='if use multi-gpu')
+   # parser.add_argument('--checkpoint', type=str, default='1',
+    #                    help='choose checkpoint')
+    
     parser.add_argument('--gpu_id', type=int, default=1,
                         help='gpu id')
+    
     parser.add_argument('--local_rank', default=-1, type=int,
                         help='node rank for distributed training')
     parser.add_argument('--random_sample', action='store_true',default=True, 
@@ -47,6 +53,7 @@ def parse_args():
 
 def main(args): 
     multi_gpus = args.multi_gpus
+    print(args.checkpoint,"checkpoint is .......................")
     epoch = int(args.checkpoint.split('.')[-2].split('_')[-1])
     time_stamp = get_time_stamp()
     args.val_save_dir = osp.join(args.val_save_dir, time_stamp)
@@ -59,6 +66,7 @@ def main(args):
     train_dl, valid_dl ,train_ds, valid_ds, _ = prepare_dataloaders(args)
     args.vocab_size = train_ds.n_words
     # prepare models
+    print(args.transformer,"transformer in test_fid")
     _, text_encoder, netG, _, _ = prepare_models(args)
     model_path = osp.join(ROOT_PATH, args.checkpoint)
     netG = load_netG(netG, model_path, multi_gpus, train=False)
@@ -72,7 +80,7 @@ def main(args):
     start_t = time.time()
     m1, s1 = load_npz(args.npz_path)
     with torch.no_grad():
-        fid = eval(valid_dl, text_encoder, netG, args.device, m1, s1, args.save_image, args.val_save_dir, \
+        fid = eval(args, valid_dl, text_encoder, netG, args.device, m1, s1, args.save_image, args.val_save_dir, \
                         args.sample_times, args.z_dim, args.batch_size, args.truncation, args.trunc_rate)
     end_t = time.time()
     if (multi_gpus==True) and (get_rank() != 0):

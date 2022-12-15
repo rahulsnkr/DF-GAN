@@ -36,6 +36,8 @@ def parse_args():
                         help='batch size')
     parser.add_argument('--train', type=bool, default=True,
                         help='if train model')
+    parser.add_argument('--transformer', type=str, default='model',
+                        help='use transform')
     parser.add_argument('--resume_epoch', type=int, default=1,
                         help='resume epoch')
     parser.add_argument('--resume_model_path', type=str, default='model',
@@ -123,7 +125,7 @@ def main(args):
         # test
         if epoch%test_interval==0:
             torch.cuda.empty_cache()
-            fid = test(valid_dl, text_encoder, netG, args.device, m1, s1, epoch, args.max_epoch, \
+            fid = test(args, valid_dl, text_encoder, netG, args.device, m1, s1, epoch, args.max_epoch, \
                         args.sample_times, args.z_dim, args.batch_size, args.truncation, args.trunc_rate)
         if (args.multi_gpus==True) and (get_rank() != 0):
             None

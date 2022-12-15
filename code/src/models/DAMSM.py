@@ -18,7 +18,7 @@ class XLM_ENCODER(nn.Module):
     last_two_layers = [hidden_states[i] for i in (-1,-2)]
     cat_hidden_states = torch.cat(tuple(last_two_layers), dim=-1)
     sent_emb = torch.mean(cat_hidden_states, dim=1).squeeze()
-    #print(words_emb.size(),sent_emb.size(),"sentence word size")
+    print(words_emb.size(),sent_emb.size(),"sentence word size")
     return words_emb, sent_emb
 # ############## Text2Image Encoder-Decoder #######
 class RNN_ENCODER(nn.Module):
