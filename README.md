@@ -9,7 +9,9 @@ Text-embeddings are crucial for GANs to synthesize embeddings for Text-to-Image 
 
 The key change we made is introducing LLMs for constructing rich contextual sentence embeddings as opposed to getting them from an LSTM. We then use these embeddings within the Deep Fusion Block to combine them with the image level features. Our approach is summarized by viewing the model architecture diagram below.
 
-![architecture](https://user-images.githubusercontent.com/28645536/207959843-ea1258ae-515b-45df-a777-91ed31cdb283.png)
+| ![architecture](https://user-images.githubusercontent.com/28645536/207959843-ea1258ae-515b-45df-a777-91ed31cdb283.png) |
+|:--:|
+| (a): Baseline, (b): DF-GAN, (c): LLM + DF-GAN |
 
 The code for each LLM is contained in a separate branch, which is evident by the names of the branch themselves. For example, the code for RoBERTa is contained within the `roberta` branch. Other branches contain approaches that we tried, but they did not get good enough results, so we made the decision not to report them. However, they're included in the repo for the sake of completeness.
 
