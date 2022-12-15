@@ -16,7 +16,7 @@ import dateutil.tz
 from io import BytesIO
 from PIL import Image
 from torchvision import transforms, datasets
-from transformers import XLNetTokenizer
+from transformers import GPT2Tokenizer
 
 # test_utils
 def params_count(model):
@@ -169,8 +169,8 @@ def get_tokenizer():
 
 def tokenize_transformer(text_filepath, args):
     if args.use_transformer:
-        if args.transformer_type == 'xlnet-base-cased':
-            tokenizer = XLNetTokenizer.from_pretrained("xlnet-base-cased")
+        if args.transformer_type == 'gpt2':
+            tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
     filepath = text_filepath
     with open(filepath, "r") as f:

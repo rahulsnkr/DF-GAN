@@ -20,7 +20,7 @@ from torch.utils.data import DataLoader, random_split
 from torch.utils.data.distributed import DistributedSampler
 
 from lib.utils import mkdir_p, get_rank, load_model_weights
-from models.DAMSM import RNN_ENCODER, CNN_ENCODER, XLNET_ENCODER
+from models.DAMSM import RNN_ENCODER, CNN_ENCODER, GPT2_ENCODER
 from models.GAN import NetG, NetD, NetC
 
 ###########   preparation   ############
@@ -39,11 +39,10 @@ def prepare_models(args):
     for p in image_encoder.parameters():
         p.requires_grad = False
     image_encoder.eval()
-    
     # text encoder
     if args.use_transformer:
-        if args.transformer_type == 'xlnet-base-cased':
-            text_encoder = XLNET_ENCODER()
+        if args.transformer_type == 'gpt2':
+            text_encoder = GPT2_ENCODER()
             text_encoder.cuda()
             for p in text_encoder.parameters():
                 p.requires_grad = False

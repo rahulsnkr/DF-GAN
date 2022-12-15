@@ -13,5 +13,3 @@ tensorboard
 ftfy
 regex
 tqdm
-transformers
-sentencepiece

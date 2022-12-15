@@ -8,11 +8,11 @@ batch_size_per_gpu=32
 stamp=normal
 train=True
 use_transformer=True
-transformer_type='xlnet-base-cased'
+transformer_type='gpt2'
 
 # resume training
 resume_epoch=1
-resume_model_path=./saved_models/bird/pretrained/state_epoch_1220/
+resume_model_path=./saved_models/bird/base_z_dim100_bird_256_2022_06_04_23_20_33/
 
 # DDP settings
 multi_gpus=True
