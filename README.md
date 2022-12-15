@@ -1,4 +1,4 @@
-This repository contains the code for the class project for the graduate level course CSCI-GA.2271-001 by Rob Fergus.
+This repository contains the code for the class project for the graduate level course CSCI-GA.2271-001 by Prof. Rob Fergus at NYU.
 
 Team Members
  - Rahul Sankar (rrs6684)
