@@ -6,8 +6,34 @@ from torchvision import models
 import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
+from transformers import BertModel
 
 # ############## Text2Image Encoder-Decoder #######
+class BERT_ENCODER(nn.Module):
+    def __init__(self):
+        super(BERT_ENCODER, self).__init__()
+        self.emb_model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
+
+    def forward(self, captions):
+        # input: torch.LongTensor of size batch x n_steps
+
+        # Get the hidden states of the encoder
+        hidden_states = self.emb_model(input_ids=captions)[2]
+        # Get the output of the last layer for word embeddings
+        words_emb = hidden_states[-1]
+
+        # For sentence embeddings, concat last 4 hidden_states and take the mean
+        # get last four layers
+        last_four_layers = [hidden_states[i] for i in (-1, -2, -3, -4)]
+
+        # cast layers to a tuple and concatenate over the last dimension
+        cat_hidden_states = torch.cat(tuple(last_four_layers), dim=-1)
+        #print(cat_hidden_states.size())
+        # take the mean of the concatenated vector over the token dimension
+        sent_emb = words_emb #torch.mean(cat_hidden_states, dim=1).squeeze()
+
+        return words_emb, sent_emb
+
 class RNN_ENCODER(nn.Module):
     def __init__(self, ntoken, ninput=300, drop_prob=0.5,
                  nhidden=128, nlayers=1, bidirectional=True):

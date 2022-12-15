@@ -21,7 +21,7 @@ else:
 ROOT_PATH = osp.abspath(osp.join(osp.dirname(osp.abspath(__file__)),  ".."))
 sys.path.insert(0, ROOT_PATH)
 from lib.utils import mkdir_p, get_rank, merge_args_yaml, get_time_stamp, load_netG
-from lib.utils import tokenize, truncated_noise, prepare_sample_data
+from lib.utils import tokenize, truncated_noise, prepare_sample_data, tokenize_transformer
 from lib.perpare import prepare_models
 
 
@@ -46,6 +46,10 @@ def parse_args():
         help='node rank for distributed training')
     parser.add_argument('--random_sample', action='store_true',default=True, 
         help='whether to sample the dataset with random sampler')
+    parser.add_argument('--use_transformer', default=False, type=bool,
+                        help='whether to use transformer for embedding captions')
+    parser.add_argument('--transformer_type', default='', type=str,
+                        help='type of transformer to use for embeddings')
     args = parser.parse_args()
     return args
 
@@ -65,8 +69,12 @@ def sample_example(wordtoix, netG, text_encoder, args):
     text_filepath, img_save_path = args.example_captions, args.samples_save_dir
     truncation, trunc_rate = args.truncation, args.trunc_rate
     z_dim = args.z_dim
-    captions, cap_lens, _ = tokenize(wordtoix, text_filepath)
-    sent_embs, _  = prepare_sample_data(captions, cap_lens, text_encoder, device)
+    if args.use_transformer:
+        captions = tokenize_transformer(captions)
+        sent_embs, _  = prepare_sample_data(captions, cap_lens, text_encoder, device)
+    else:
+        captions, cap_lens, _ = tokenize(wordtoix, text_filepath)
+        sent_embs, _  = prepare_sample_data(captions, cap_lens, text_encoder, device)
     caption_num = sent_embs.size(0)
     # get noise
     if truncation==True:
